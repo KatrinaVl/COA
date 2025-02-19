@@ -11,6 +11,13 @@ class Users {
     role 
 }
 
+note right of Users
+Главная информация 
+о пользователе, 
+его имя, фамилия, 
+роль и день рождения
+end note
+
 
 class Register {
     email
@@ -24,6 +31,11 @@ class Register {
     id_user
 }
 
+note right of Register
+Информация, необходимая
+для регистрации
+end note
+
 class Activity {
     id_user
     ..
@@ -36,11 +48,22 @@ class Activity {
     status
 }
 
+note left of Activity
+Информация показывающая
+активность и статистику
+пользователя в социальной
+сети
+end note
+
 class ListFrineds {
     id
     ..
     id_user
 }
+
+note left of ListFrineds
+Список друзей
+end note
 
 Register::id_user --> Users
 

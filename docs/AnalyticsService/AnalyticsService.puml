@@ -1,7 +1,5 @@
 @startuml
 
-class Stat {
-}
 
 class UserStat {
     id
@@ -14,6 +12,12 @@ class UserStat {
     ..
     last_online
 }
+
+note top of UserStat
+Статистика, которую 
+можно собрать у клиента
+end note
+
 
 class PostStat {
     id
@@ -33,6 +37,11 @@ class PostStat {
     id_active_stat
 }
 
+note top of PostStat
+Статистика, которую 
+можно собрать у поста
+end note
+
 class ActiveStat {
     id
     ..
@@ -47,18 +56,14 @@ class ActiveStat {
     last_update
 }
 
-
-
+note left of ActiveStat
+Статистика, которую 
+можно собрать у
+активности поста
+end note
 
 
 PostStat::id_active_stat --> ActiveStat
-
-Stat --> UserStat
-Stat --> PostStat
-
-
-
-
 
 @enduml
 

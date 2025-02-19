@@ -1,0 +1,50 @@
+@startuml
+class API {
+        id
+        ..
+        request 
+        ..
+        sequence_number
+        ..
+        id_of_last_request
+        ..
+        body_of_request
+    }
+
+    note left of API
+    Данные, необходимые 
+    для обработки запроса
+    end note
+
+    Class ServicesHandles {
+        UserService
+        ..
+        PostService
+        ..
+        AnalyticsService
+    }
+
+    note left of ServicesHandles
+    Ручки, необходимые 
+    для взаимодействия с сервисами
+    end note
+
+    class Ongoing {
+        id
+        ..
+        id_of_request
+        ..
+        service
+        ..
+        time
+        ..
+        size_request
+    }
+    note bottom of Ongoing
+    Информация об 
+    обрабатывающемся запросе
+    end note
+
+API::body_of_request --> ServicesHandles
+
+@enduml

@@ -12,10 +12,15 @@ class Posts {
     ..
     date
     ..
-    id_user
-    ..
     content
 }
+
+note left of Posts
+Вся информация о посте: 
+акивность на нем, 
+комментарии, дата 
+и контент поста
+end note
 
 class Comments {
     id
@@ -29,6 +34,14 @@ class Comments {
     id_answered_comment
 }
 
+note bottom of Comments
+Комментарии оставленные
+пользователем вместе с
+датой и ссылкой на 
+ответный комментарий
+если это необходимо
+end note
+
 class Active {
     id
     ..
@@ -41,11 +54,25 @@ class Active {
     time
 }
 
+note bottom of Active
+Проявление активности 
+(лайк / просмотр) от 
+какого-то человека
+вместе с датой и 
+временем
+end note
+
 class WallUsers {
     id_user
     ..
     id_post
 }
+
+note left of WallUsers
+Стена постов от 
+каждого пользователя
+end note
+
 }
 
 package "User Service" <<Rectangle>> {
@@ -63,6 +90,13 @@ class Users {
     role 
 }
 
+note right of Users
+Главная информация 
+о пользователе, 
+его имя, фамилия, 
+роль и день рождения
+end note
+
 
 class Register {
     email
@@ -76,6 +110,11 @@ class Register {
     id_user
 }
 
+note right of Register
+Информация, необходимая
+для регистрации
+end note
+
 class Activity {
     id_user
     ..
@@ -88,19 +127,28 @@ class Activity {
     status
 }
 
+note left of Activity
+Информация показывающая
+активность и статистику
+пользователя в социальной
+сети
+end note
+
 class ListFrineds {
     id
     ..
     id_user
 }
 
+note left of ListFrineds
+Список друзей
+end note
+
 }
 
 package "Analytics Service" <<Rectangle>> {
     
 
-class Stat {
-}
 
 class UserStat {
     id
@@ -113,6 +161,12 @@ class UserStat {
     ..
     last_online
 }
+
+note top of UserStat
+Статистика, которую 
+можно собрать у клиента
+end note
+
 
 class PostStat {
     id
@@ -132,6 +186,11 @@ class PostStat {
     id_active_stat
 }
 
+note top of PostStat
+Статистика, которую 
+можно собрать у поста
+end note
+
 class ActiveStat {
     id
     ..
@@ -145,6 +204,12 @@ class ActiveStat {
     ..
     last_update
 }
+
+note left of ActiveStat
+Статистика, которую 
+можно собрать у
+активности поста
+end note
 
 }
 
@@ -160,9 +225,45 @@ package "API Service" <<Rectangle>> {
         ..
         body_of_request
     }
+
+    note left of API
+    Данные, необходимые 
+    для обработки запроса
+    end note
+
+    Class ServicesHandles {
+        UserService
+        ..
+        PostService
+        ..
+        AnalyticsService
+    }
+
+    note left of ServicesHandles
+    Ручки, необходимые 
+    для взаимодействия с сервисами
+    end note
+
+    class Ongoing {
+        id
+        ..
+        id_of_request
+        ..
+        service
+        ..
+        time
+        ..
+        size_request
+    }
+    note bottom of Ongoing
+    Информация об 
+    обрабатывающемся запросе
+    end note
 }
 
 WallUsers::id_post --> Posts
+
+
 Posts::id_active --> Active
 Posts::id_comment --> Comments
 
@@ -171,10 +272,6 @@ WallUsers::id_user -->Users  #line.dotted;
 
 Register::id_user --> Users
 
-Posts::id_user --> Users #line.dotted;
-
-Stat::id_user --> Users #line.dotted;
-
 Users --> Activity
 
 Activity::id_post_stat --> PostStat #line.dotted;
@@ -182,7 +279,12 @@ Activity::id_stat --> UserStat #line.dotted;
 Activity::list_friends --> ListFrineds
 PostStat::id_active_stat --> ActiveStat
 
-Stat --> UserStat
-Stat --> PostStat
+ServicesHandles::UserService --> Register  #line.dotted;
+ServicesHandles::UserService --> Users  #line.dotted;
+ServicesHandles::PostService --> Posts  #line.dotted;
+ServicesHandles::AnalyticsService --> PostStat  #line.dotted;
+ServicesHandles::AnalyticsService --> UserStat  #line.dotted;
+
+API::body_of_request --> ServicesHandles
 
 @enduml

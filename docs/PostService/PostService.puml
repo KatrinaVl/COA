@@ -8,10 +8,15 @@ class Posts {
     ..
     date
     ..
-    id_user
-    ..
     content
 }
+
+note left of Posts
+Вся информация о посте: 
+акивность на нем, 
+комментарии, дата 
+и контент поста
+end note
 
 class Comments {
     id
@@ -25,6 +30,14 @@ class Comments {
     id_answered_comment
 }
 
+note bottom of Comments
+Комментарии оставленные
+пользователем вместе с
+датой и ссылкой на 
+ответный комментарий
+если это необходимо
+end note
+
 class Active {
     id
     ..
@@ -37,11 +50,24 @@ class Active {
     time
 }
 
+note bottom of Active
+Проявление активности 
+(лайк / просмотр) от 
+какого-то человека
+вместе с датой и 
+временем
+end note
+
 class WallUsers {
     id_user
     ..
     id_post
 }
+
+note left of WallUsers
+Стена постов от 
+каждого пользователя
+end note
 
 WallUsers::id_post --> Posts
 
