@@ -1,0 +1,188 @@
+@startuml
+
+package "Post Service" <<Rectangle>> {
+    
+
+class Posts {
+    id 
+    ..
+    id_active
+    ..
+    id_comment
+    ..
+    date
+    ..
+    id_user
+    ..
+    content
+}
+
+class Comments {
+    id
+    ..
+    id_user
+    ..
+    date
+    ..
+    text_comment
+    ..
+    id_answered_comment
+}
+
+class Active {
+    id
+    ..
+    type (like / see)
+    ..
+    id_user
+    ..
+    date
+    ..
+    time
+}
+
+class WallUsers {
+    id_user
+    ..
+    id_post
+}
+}
+
+package "User Service" <<Rectangle>> {
+    
+
+class Users {
+    id_user
+    ..
+    name
+    ..
+    surname 
+    ..
+    birthday
+    ..
+    role 
+}
+
+
+class Register {
+    email
+    ..
+    password
+    ..
+    sha_key (private)
+    ..
+    sha-key (public)
+    ..
+    id_user
+}
+
+class Activity {
+    id_user
+    ..
+    id_stat 
+    ..
+    id_post_stat
+    ..
+    list_friends
+    ..
+    status
+}
+
+class ListFrineds {
+    id
+    ..
+    id_user
+}
+
+}
+
+package "Analytics Service" <<Rectangle>> {
+    
+
+class Stat {
+}
+
+class UserStat {
+    id
+    ..
+    id_user
+    ..
+    number_posts
+    ..
+    last_activity
+    ..
+    last_online
+}
+
+class PostStat {
+    id
+    ..
+    id_post
+    ..
+    number_likes
+    ..
+    number_comments
+    ..
+    number_seeing
+    ..
+    data_last_update
+    ..
+    type_content
+    ..
+    id_active_stat
+}
+
+class ActiveStat {
+    id
+    ..
+    id_user
+    ..
+    id_active
+    ..
+    type
+    ..
+    friend (yes/no)
+    ..
+    last_update
+}
+
+}
+
+package "API Service" <<Rectangle>> {
+    class API {
+        id
+        ..
+        request 
+        ..
+        sequence_number
+        ..
+        id_of_last_request
+        ..
+        body_of_request
+    }
+}
+
+WallUsers::id_post --> Posts
+Posts::id_active --> Active
+Posts::id_comment --> Comments
+
+
+WallUsers::id_user -->Users  #line.dotted;
+
+Register::id_user --> Users
+
+Posts::id_user --> Users #line.dotted;
+
+Stat::id_user --> Users #line.dotted;
+
+Users --> Activity
+
+Activity::id_post_stat --> PostStat #line.dotted;
+Activity::id_stat --> UserStat #line.dotted;
+Activity::list_friends --> ListFrineds
+PostStat::id_active_stat --> ActiveStat
+
+Stat --> UserStat
+Stat --> PostStat
+
+@enduml

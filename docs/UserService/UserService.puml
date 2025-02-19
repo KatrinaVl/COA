@@ -1,0 +1,52 @@
+@startuml
+class Users {
+    id_user
+    ..
+    name
+    ..
+    surname 
+    ..
+    birthday
+    ..
+    role 
+}
+
+
+class Register {
+    email
+    ..
+    password
+    ..
+    sha_key (private)
+    ..
+    sha-key (public)
+    ..
+    id_user
+}
+
+class Activity {
+    id_user
+    ..
+    id_stat 
+    ..
+    id_post_stat
+    ..
+    list_friends
+    ..
+    status
+}
+
+class ListFrineds {
+    id
+    ..
+    id_user
+}
+
+Register::id_user --> Users
+
+Users --> Activity
+Users::id_user --> Activity::id_user  #line.dotted;
+
+Activity::list_friends --> ListFrineds
+
+@enduml

@@ -1,0 +1,66 @@
+@startuml
+
+class Stat {
+}
+
+class UserStat {
+    id
+    ..
+    id_user
+    ..
+    number_posts
+    ..
+    last_activity
+    ..
+    last_online
+}
+
+class PostStat {
+    id
+    ..
+    id_post
+    ..
+    number_likes
+    ..
+    number_comments
+    ..
+    number_seeing
+    ..
+    data_last_update
+    ..
+    type_content
+    ..
+    id_active_stat
+}
+
+class ActiveStat {
+    id
+    ..
+    id_user
+    ..
+    id_active
+    ..
+    type
+    ..
+    friend (yes/no)
+    ..
+    last_update
+}
+
+
+
+
+
+PostStat::id_active_stat --> ActiveStat
+
+Stat --> UserStat
+Stat --> PostStat
+
+
+
+
+
+@enduml
+
+
+' Option + D

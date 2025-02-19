@@ -1,0 +1,63 @@
+@startuml
+class Posts {
+    id 
+    ..
+    id_active
+    ..
+    id_comment
+    ..
+    date
+    ..
+    id_user
+    ..
+    content
+}
+
+class Comments {
+    id
+    ..
+    id_user
+    ..
+    date
+    ..
+    text_comment
+    ..
+    id_answered_comment
+}
+
+class Active {
+    id
+    ..
+    type (like / see)
+    ..
+    id_user
+    ..
+    date
+    ..
+    time
+}
+
+class WallUsers {
+    id_user
+    ..
+    id_post
+}
+
+WallUsers::id_post --> Posts
+
+Posts::id_comment --> Comments
+Posts::list_likes --> Active
+
+
+
+' Kafka --> Posts #green;line.dotted;text:green : info о посте 
+' Kafka --> Comments #green;line.dotted;text:green : info о комментарии
+' Kafka --> Likes #green;line.dotted;text:green : info о лайке
+
+
+
+
+
+
+
+@enduml

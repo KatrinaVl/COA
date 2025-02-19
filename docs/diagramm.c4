@@ -1,0 +1,99 @@
+specification {
+    element person {
+        style {
+            shape person
+            color green
+        }
+    }
+    element softwareSystem
+    element container
+    element component
+    element restapi
+}
+
+model {
+    user = person "Пользователь" "Пользователь соцсети"
+
+    todoList = softwareSystem "Социальная сеть" {
+    apiGateway = container "API Gateway" {
+      description "Маршрутизация запросов и управление доступом"
+      technology "Node.js, Express"
+    }
+
+    userService = container "User Service" {
+      description "Управление пользователями, работает с регистрацией и аутентификацией"
+      technology "Python"
+      
+    }
+
+    analyticsService = container "Analytics Service" {
+      description "Сбор и анализ статистики использования"
+      technology "Python, C++"
+      container apiAnalitics {
+        description "Api сервиса статистики для API Gateway"
+        technology "Node.js, Express, Python"
+      }
+    }
+
+    postService = container "Posts Service" {
+      description "Хранение постов и комментариев пользователей"
+      technology "Node.js, Python, C++"
+    }
+
+
+    postgresDb = container "PostgreSQL" {
+      description "Хранение данных пользователей"
+      technology "Database"
+      style {
+        shape cylinder
+      }
+    }
+
+    postgres_apiDb = container "PostgreSQL" {
+      description "Хранение запросов"
+      technology "Database"
+      style {
+        shape cylinder
+      }
+    }
+
+    clickhouseDb = container "ClickHouse" {
+      description "Хранение данных статистики"
+      technology "Database"
+      style {
+        shape cylinder
+      }
+    }
+
+    kafka = container "Kafka" {
+      description "Обмен событиями между сервисами"
+      technology "Message Broker"
+      style {
+        shape queue
+      }
+    }
+  }
+
+  user -> todoList.apiGateway "Использует" "HTTPS"
+  todoList.apiGateway -> todoList.userService "Маршрутизирует" "JSON/HTTPS"
+  todoList.apiGateway -> todoList.postService "Маршрутизирует" "JSON/HTTPS"
+  todoList.apiGateway -> todoList.analyticsService.apiAnalitics "Маршрутизирует и использует apiAnalytics"
+
+
+
+  todoList.userService -> todoList.postgresDb "Читает/Пишет" "SQL"
+  todoList.postService -> todoList.postgresDb "Читает/Пишет" "SQL"
+  todoList.apiGateway -> todoList.postgres_apiDb "Читает/Пишет" "SQL"
+  todoList.analyticsService -> todoList.clickhouseDb "Читает/Пишет" "CQL"
+
+  todoList.postService -> todoList.kafka "Публикует посты, отражает лайки и комментарии" "task_events"
+  todoList.analyticsService -> todoList.kafka "Подписывается" "user_events, task_events"
+
+
+}
+
+views {
+   view index {
+        include *
+    }
+}
