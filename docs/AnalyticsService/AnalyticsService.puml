@@ -1,69 +1,70 @@
 @startuml
 
 
+package "Analytics Service" <<Rectangle>> {
+    
+
+
 class UserStat {
-    id
+    id :: SIZE_T
     ..
-    id_user
+    id_user :: SIZE_T
     ..
-    number_posts
+    number_posts :: SIZE_T
     ..
-    last_activity
+    number_friends :: SIZE_T
     ..
-    last_online
+    last_online :: STRING
 }
 
-note top of UserStat
+note bottom of UserStat
 Статистика, которую 
 можно собрать у клиента
 end note
 
 
 class PostStat {
-    id
+    id :: SIZE_T
     ..
-    id_post
+    id_post :: SIZE_T
     ..
-    number_likes
+    number_likes :: SIZE_T
     ..
-    number_comments
+    number_comments :: SIZE_T
     ..
-    number_seeing
+    number_seeing :: SIZE_T
     ..
-    data_last_update
-    ..
-    type_content
-    ..
-    id_active_stat
+    data_last_update :: SIZE_T
 }
 
-note top of PostStat
+note bottom of PostStat
 Статистика, которую 
 можно собрать у поста
 end note
 
-class ActiveStat {
-    id
+class Active {
+    id :: SIZE_T
     ..
-    id_user
+    type (like / see) :: STRING
     ..
-    id_active
+    id_user :: SIZE_T
     ..
-    type
+    date :: STRING
     ..
-    friend (yes/no)
+    id_posts :: SIZE_T
     ..
-    last_update
+    friend (yes/no) :: STRING
 }
 
-note left of ActiveStat
-Статистика, которую 
-можно собрать у
-активности поста
+note bottom of Active
+Проявление активности 
+(лайк / просмотр) от 
+какого-то человека
+вместе с датой и 
+временем
 end note
 
-
-PostStat::id_active_stat --> ActiveStat
+}
 
 @enduml
 

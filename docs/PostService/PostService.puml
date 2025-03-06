@@ -1,17 +1,18 @@
 @startuml
+package "Post Service" <<Rectangle>> {
+    
+
 class Posts {
-    id 
+    id :: SIZE_T
     ..
-    id_active
+    id_user :: SIZE_T
     ..
-    id_comment
+    date :: STRING
     ..
-    date
-    ..
-    content
+    content :: STRING
 }
 
-note left of Posts
+note bottom of Posts
 Вся информация о посте: 
 акивность на нем, 
 комментарии, дата 
@@ -19,15 +20,15 @@ note left of Posts
 end note
 
 class Comments {
-    id
+    id :: SIZE_T
     ..
-    id_user
+    id_user :: SIZE_T
     ..
-    date
+    date ::STRING
     ..
-    text_comment
+    text_comment :: STRING
     ..
-    id_answered_comment
+    parent_id :: SIZE_T
 }
 
 note bottom of Comments
@@ -38,49 +39,7 @@ note bottom of Comments
 если это необходимо
 end note
 
-class Active {
-    id
-    ..
-    type (like / see)
-    ..
-    id_user
-    ..
-    date
-    ..
-    time
 }
-
-note bottom of Active
-Проявление активности 
-(лайк / просмотр) от 
-какого-то человека
-вместе с датой и 
-временем
-end note
-
-class WallUsers {
-    id_user
-    ..
-    id_post
-}
-
-note left of WallUsers
-Стена постов от 
-каждого пользователя
-end note
-
-WallUsers::id_post --> Posts
-
-Posts::id_comment --> Comments
-Posts::list_likes --> Active
-
-
-
-' Kafka --> Posts #green;line.dotted;text:green : info о посте 
-' Kafka --> Comments #green;line.dotted;text:green : info о комментарии
-' Kafka --> Likes #green;line.dotted;text:green : info о лайке
-
-
 
 
 

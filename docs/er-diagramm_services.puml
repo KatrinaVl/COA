@@ -4,18 +4,16 @@ package "Post Service" <<Rectangle>> {
     
 
 class Posts {
-    id 
+    id :: SIZE_T
     ..
-    id_active
+    id_user :: SIZE_T
     ..
-    id_comment
+    date :: STRING
     ..
-    date
-    ..
-    content
+    content :: STRING
 }
 
-note left of Posts
+note bottom of Posts
 Вся информация о посте: 
 акивность на нем, 
 комментарии, дата 
@@ -23,15 +21,15 @@ note left of Posts
 end note
 
 class Comments {
-    id
+    id :: SIZE_T
     ..
-    id_user
+    id_user :: SIZE_T
     ..
-    date
+    date ::STRING
     ..
-    text_comment
+    text_comment :: STRING
     ..
-    id_answered_comment
+    parent_id :: SIZE_T
 }
 
 note bottom of Comments
@@ -42,55 +40,36 @@ note bottom of Comments
 если это необходимо
 end note
 
-class Active {
-    id
-    ..
-    type (like / see)
-    ..
-    id_user
-    ..
-    date
-    ..
-    time
-}
-
-note bottom of Active
-Проявление активности 
-(лайк / просмотр) от 
-какого-то человека
-вместе с датой и 
-временем
-end note
-
-class WallUsers {
-    id_user
-    ..
-    id_post
-}
-
-note left of WallUsers
-Стена постов от 
-каждого пользователя
-end note
-
 }
 
 package "User Service" <<Rectangle>> {
     
 
 class Users {
-    id_user
+    id :: SIZE_T
     ..
-    name
+    id_user :: SIZE_T
     ..
-    surname 
+    name :: STRING
     ..
-    birthday
+    surname :: STRING
     ..
-    role 
+    phone :: STRING
+    ..
+    birthday :: STRING
+    ..
+    role :: STRING
+    ..
+    mail :: STRING
+    ..
+    status :: STRING
+    ..
+    token :: STRING
+    ..
+    updated_at :: DATE
 }
 
-note right of Users
+note bottom of Users
 Главная информация 
 о пользователе, 
 его имя, фамилия, 
@@ -99,48 +78,36 @@ end note
 
 
 class Register {
-    email
+    id :: SIZE_T
     ..
-    password
+    login ::STRING
     ..
-    sha_key (private)
+    password :: STRING
     ..
-    sha-key (public)
+    mail :: STRING
     ..
-    id_user
+    created_at :: DATA
 }
 
-note right of Register
+note bottom of Register
 Информация, необходимая
 для регистрации
 end note
 
-class Activity {
-    id_user
-    ..
-    id_stat 
-    ..
-    id_post_stat
-    ..
-    list_friends
-    ..
-    status
-}
-
-note left of Activity
-Информация показывающая
-активность и статистику
-пользователя в социальной
-сети
-end note
 
 class ListFrineds {
-    id
+    id :: SIZE_T
     ..
-    id_user
+    id_user :: SIZE_T
+    ..
+    frined :: SIZE_T
+    ..
+    name :: STRING
+    ..
+    surname :: STRING
 }
 
-note left of ListFrineds
+note bottom of ListFrineds
 Список друзей
 end note
 
@@ -151,140 +118,71 @@ package "Analytics Service" <<Rectangle>> {
 
 
 class UserStat {
-    id
+    id :: SIZE_T
     ..
-    id_user
+    id_user :: SIZE_T
     ..
-    number_posts
+    number_posts :: SIZE_T
     ..
-    last_activity
+    number_friends :: SIZE_T
     ..
-    last_online
+    last_online :: STRING
 }
 
-note top of UserStat
+note bottom of UserStat
 Статистика, которую 
 можно собрать у клиента
 end note
 
 
 class PostStat {
-    id
+    id :: SIZE_T
     ..
-    id_post
+    id_post :: SIZE_T
     ..
-    number_likes
+    number_likes :: SIZE_T
     ..
-    number_comments
+    number_comments :: SIZE_T
     ..
-    number_seeing
+    number_seeing :: SIZE_T
     ..
-    data_last_update
-    ..
-    type_content
-    ..
-    id_active_stat
+    data_last_update :: SIZE_T
 }
 
-note top of PostStat
+note bottom of PostStat
 Статистика, которую 
 можно собрать у поста
 end note
 
-class ActiveStat {
-    id
+class Active {
+    id :: SIZE_T
     ..
-    id_user
+    type (like / see) :: STRING
     ..
-    id_active
+    id_user :: SIZE_T
     ..
-    type
+    date :: STRING
     ..
-    friend (yes/no)
+    id_posts :: SIZE_T
     ..
-    last_update
+    friend (yes/no) :: STRING
 }
 
-note left of ActiveStat
-Статистика, которую 
-можно собрать у
-активности поста
+note bottom of Active
+Проявление активности 
+(лайк / просмотр) от 
+какого-то человека
+вместе с датой и 
+временем
 end note
 
 }
 
-package "API Service" <<Rectangle>> {
-    class API {
-        id
-        ..
-        request 
-        ..
-        sequence_number
-        ..
-        id_of_last_request
-        ..
-        body_of_request
-    }
-
-    note left of API
-    Данные, необходимые 
-    для обработки запроса
-    end note
-
-    Class ServicesHandles {
-        UserService
-        ..
-        PostService
-        ..
-        AnalyticsService
-    }
-
-    note left of ServicesHandles
-    Ручки, необходимые 
-    для взаимодействия с сервисами
-    end note
-
-    class Ongoing {
-        id
-        ..
-        id_of_request
-        ..
-        service
-        ..
-        time
-        ..
-        size_request
-    }
-    note bottom of Ongoing
-    Информация об 
-    обрабатывающемся запросе
-    end note
-}
-
-WallUsers::id_post --> Posts
-
-
-Posts::id_active --> Active
-Posts::id_comment --> Comments
-
-
-WallUsers::id_user -->Users  #line.dotted;
-
-Register::id_user --> Users
-
-Users --> Activity
-
-Activity::id_post_stat --> PostStat #line.dotted;
-Activity::id_stat --> UserStat #line.dotted;
-Activity::list_friends --> ListFrineds
-PostStat::id_active_stat --> ActiveStat
-
-ServicesHandles::UserService --> Register  #line.dotted;
-ServicesHandles::UserService --> Users  #line.dotted;
-ServicesHandles::PostService --> Posts  #line.dotted;
-ServicesHandles::AnalyticsService --> PostStat  #line.dotted;
-ServicesHandles::AnalyticsService --> UserStat  #line.dotted;
-
-API::body_of_request --> ServicesHandles
+Register::id_user -> Users::id_user #line.dotted
+Posts::id_user -> Users::id_user #line.dotted
+Comments::id_user -> Users::id_user #line.dotted
+Comments::parent_id -> Comments::id #line.dotted
+UserStat::id_user -> Users::id_user #line.dotted
+PostStat::id_post -> Posts::id #line.dotted
 
 @enduml

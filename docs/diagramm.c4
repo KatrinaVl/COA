@@ -83,10 +83,11 @@ model {
 
   todoList.userService -> todoList.postgresDb "Читает/Пишет" "SQL"
   todoList.postService -> todoList.postgresDb "Читает/Пишет" "SQL"
-  todoList.apiGateway -> todoList.postgres_apiDb "Читает/Пишет" "SQL"
+  // todoList.apiGateway -> todoList.postgres_apiDb "Читает/Пишет" "SQL"
   todoList.analyticsService -> todoList.clickhouseDb "Читает/Пишет" "CQL"
 
   todoList.postService -> todoList.kafka "Публикует посты, отражает лайки и комментарии" "task_events"
+  todoList.kafka -> todoList.clickhouseDb "Читает/Пишет" "CQL" 
   todoList.analyticsService -> todoList.kafka "Подписывается" "user_events, task_events"
 
 
