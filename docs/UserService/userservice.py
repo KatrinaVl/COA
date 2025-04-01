@@ -50,6 +50,8 @@ def register():
     d_ans = {"user_id": user.id, 'message' : 'OK'}
     return jsonify(d_ans), 201
 
+# add token
+
 @app.route("/login", methods=['POST'])
 def login():
     d = request.get_json(force=True)
@@ -88,6 +90,8 @@ def update():
     if token != user.token:
         return {'message' : "You do not have accses"}, 403
 
+# jwt - чекать как-то jwt
+
     if 'login' in d or 'password' in d:
         return {'message' : 'Impossible change login or password'}, 400
 
@@ -106,7 +110,11 @@ def get_info():
     id_ = request.args.get("id")
     token = request.cookies.get('token')
 
-    user = UserInfo.query.filter_by(user_id=id_).first()
+    try:
+
+        user = UserInfo.query.filter_by(user_id=id_).first()
+    except Exception as e:
+        return {"message" : " you give wrong information"}, 400
 
     if (not user) :
         return {'message' : "impossible to find user" }, 404

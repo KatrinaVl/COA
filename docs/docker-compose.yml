@@ -3,15 +3,23 @@ version: '3'
 services:
     api:
         build: 
-            context: api  
+            context: .
+            dockerfile: api/Dockerfile 
         environment:
             API_SERVER_URL: "http://api:8090"
             USERSERVICE_SERVER_URL: "http://userservice:8091"
-        # command: ["--private", "/signature.pem", "--public", "/signature.pub", "--port", "8090"]
+            POST_SERVER_URL: "http://post_server:50051"
+            # - PYTHONPATH=/docs
+        # environment:
+            PYTHONPATH : '/docs'
+            POST_SERVER_HOST : post_server
+            POST_SERVER_ADDR : post_server:50051
         ports:
             - 8090:8090
         depends_on:
             - userservice
+            - proto
+            - post_server
         networks:
             - social-network
 
@@ -26,6 +34,29 @@ services:
             - social-network
         depends_on:
             - database
+
+    post_server:
+        build: 
+            context: .
+            dockerfile: post_server/Dockerfile 
+        ports:
+            - "50051:50051"
+        networks:
+            - social-network
+        depends_on:
+            - database
+            - proto
+
+    proto:
+        build:
+            context: .
+            dockerfile: proto/Dockerfile 
+        environment:
+            PYTHONPATH : '/docs'
+        networks:
+            - social-network
+        volumes:
+            - ./proto:/docs/proto
 
 
     database:

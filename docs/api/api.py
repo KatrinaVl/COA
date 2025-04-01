@@ -17,31 +17,21 @@ import pytest
 
 import requests
 
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import grpc
+from proto import post_service_pb2
+from proto import post_service_pb2_grpc
+
+
 app = Flask(__name__)
 LOGGER = logging.getLogger(__name__)
 
-def wait_for_socket(host, port):
-    retries = 10
-    exception = None
-    while retries > 0:
-        try:
-            socket.socket().connect((host, port))
-            return
-        except ConnectionRefusedError as e:
-            exception = e
-            print(f'Got ConnectionError for url {host}:{port}: {e} , retrying')
-            retries -= 1
-            time.sleep(2)
-    raise exception
 
-@pytest.fixture
-def userservice_addr():
-    addr = os.environ.get('USERSERVICE_SERVER_URL', 'http://127.0.0.1:8091')
-    host = urllib.parse.urlparse(addr).hostname
-    port = urllib.parse.urlparse(addr).port
-    wait_for_socket(host, port)
-    yield addr
-
+channel = grpc.insecure_channel("post_server:50051")
+stub = post_service_pb2_grpc.PostServiceStub(channel)
 
 def make_requests(method, addr, handle, params=None, data=None, cookies=None, headers=None):
     if data is not None:
@@ -151,6 +141,173 @@ def add_friend():
 
     return r.content, r.status_code
 
+
+@app.route("/create_post", methods=['POST'])
+def create_post():
+    d = request.get_json(force=True)
+
+    r = make_requests(
+                'GET',
+                'http://127.0.0.1:8091',
+                '/get_info',
+                params={
+                'id': d['creator_id']},
+                cookies= {
+                    'token' : d['token'],
+                })
+
+    if r.status_code != 200:
+        return r.content, r.status_code
+
+
+    try: 
+        response = stub.CreatePost(post_service_pb2.CreatePostRequest(
+            title=d['title'],
+            description=d['description'],
+            creator_id=d['creator_id'],
+            is_private=d['is_private'],
+            tags=d['tags']
+        ))
+
+        ans = {"id" : response.id, "title" : response.title, "description" : response.description, 
+                "creator_id" : response.creator_id, "created_at" : response.created_at, "updated_at" : response.updated_at, 
+                "is_private" : response.is_private, "tags" : list(response.tags)}
+
+        return jsonify(ans), 201
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+@app.route("/update_post", methods=['POST'])
+def update_post():
+    d = request.get_json(force=True)
+
+    r = make_requests(
+                'GET',
+                'http://127.0.0.1:8091',
+                '/get_info',
+                params={
+                'id': d['creator_id']},
+                cookies= {
+                    'token' : d['token'],
+                })
+
+    if r.status_code != 200:
+        return r.content, r.status_code
+
+    try:
+
+        response = stub.UpdatePost(post_service_pb2.UpdatePostRequest(
+            id=d['id'],
+            title=d['title'],
+            description=d['description'],
+            creator_id=d['creator_id'],
+            is_private=d['is_private'],
+            tags=d['tags']
+        ))
+
+        ans = {"id" : response.id, "title" : response.title, "description" : response.description, 
+                "creator_id" : response.creator_id, "created_at" : response.created_at, "updated_at" : response.updated_at, 
+                "is_private" : response.is_private, "tags" : list(response.tags)}
+
+        return jsonify(ans), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+@app.route("/delete_post", methods=['POST'])
+def delete_post():
+    d = request.get_json(force=True)
+
+    r = make_requests(
+                'GET',
+                'http://127.0.0.1:8091',
+                '/get_info',
+                params={
+                'id': d['creator_id']},
+                cookies= {
+                    'token' : d['token'],
+                })
+
+    if r.status_code != 200:
+        return r.content, r.status_code
+
+    try:
+        response = stub.DeletePost(post_service_pb2.PostRequest(
+            id=d['id']
+        ))
+
+        ans = {"Messege" : "Post was deleted"}
+
+        return jsonify(ans), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+@app.route("/get_post", methods=['GET'])
+def get_post():
+    d = request.get_json(force=True)
+
+    r = make_requests(
+                'GET',
+                'http://127.0.0.1:8091',
+                '/get_info',
+                params={
+                'id': d['creator_id']},
+                cookies= {
+                    'token' : d['token'],
+                })
+
+    if r.status_code != 200:
+        return r.content, r.status_code
+
+    try:
+        response = stub.GetPost(post_service_pb2.PostRequest(
+            id=d['id']
+        ))
+
+        ans = {"id" : response.id, "title" : response.title, "description" : response.description, 
+                "creator_id" : response.creator_id, "created_at" : response.created_at, "updated_at" : response.updated_at, 
+                "is_private" : response.is_private, "tags" : list(response.tags)}
+
+        return jsonify(ans), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+@app.route("/get_all", methods=['GET'])
+def get_all():
+    d = request.get_json(force=True)
+
+    r = make_requests(
+                'GET',
+                'http://127.0.0.1:8091',
+                '/get_info',
+                params={
+                'id': d['creator_id']},
+                cookies= {
+                    'token' : d['token'],
+                })
+
+    if r.status_code != 200:
+        return r.content, r.status_code
+
+    try:
+        response = stub.ListPosts(post_service_pb2.Empty())
+
+        ans_list = []
+
+        for r in response.posts:
+            ans = {"id" : r.id, "title" : r.title, "description" : r.description, 
+                "creator_id" : r.creator_id, "created_at" : r.created_at, "updated_at" : r.updated_at, 
+                "is_private" : r.is_private, "tags" : list(r.tags)}
+
+            ans_list.append(ans)
+
+        return jsonify(ans_list), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port='8090')

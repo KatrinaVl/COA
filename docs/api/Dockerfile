@@ -1,10 +1,13 @@
 FROM python:3.12-slim
 
-WORKDIR /docs/api
-COPY requirements.txt .
+WORKDIR /docs
+COPY api/requirements.txt .
 
 RUN pip install -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT ["python", "-m", "api"]
+ENV PYTHONPATH=/docs
+COPY ./proto ./proto
+
+ENTRYPOINT ["python", "-m", "api.api"]

@@ -338,7 +338,290 @@ paths:
                 properties:
                   message: 
                     type: string
+  /create_post:
+    post:
+      summary: "information for post"
+      description: "create a new post"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  title : 
+                    type: string
+                  description :
+                    type:  string
+                  creator_id : 
+                    type: string
+                  is_private : 
+                    type : bool
+                  tags : 
+                    type: string 
+                  token :  
+                    type : string
+                required:
+                  - title
+                  - description
+                  - creator_id
+                  - token
+      responses:
+        '201':
+          description: "Creating is successful and return the post"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id : 
+                    type : string
+                  title : 
+                    type: string
+                  description :
+                    type:  string
+                  creator_id : 
+                    type: string
+                  created_at : 
+                    type : string
+                  update_st : 
+                    type : string
+                  is_private : 
+                    type : bool
+                  tags : 
+                    type: string 
+                  token :  
+                    type : string
+        '400':
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
 
+  /update_post:
+    post:
+      summary: "information for post"
+      description: "update the post"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  title : 
+                    type: string
+                  description :
+                    type:  string
+                  creator_id : 
+                    type: string
+                  is_private : 
+                    type : bool
+                  tags : 
+                    type: string 
+                  token :  
+                    type : string
+                required:
+                  - title
+                  - description
+                  - creator_id
+                  - token
+      responses:
+        '200':
+          description: "Creating is successful and return the post"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id : 
+                    type : string
+                  title : 
+                    type: string
+                  description :
+                    type:  string
+                  creator_id : 
+                    type: string
+                  created_at : 
+                    type : string
+                  update_st : 
+                    type : string
+                  is_private : 
+                    type : bool
+                  tags : 
+                    type: string 
+                  token :  
+                    type : string
+        '400':
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /delete_post:
+    post:
+      summary: "id post"
+      description: "delete the post"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  id : 
+                    type: string
+                  creator_id : 
+                    type: string
+                  token :  
+                    type : string
+                required:
+                  - id
+                  - creator_id
+                  - token
+      responses:
+        '200':
+          description: "Delete is successful"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '400':
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /get_post:
+    post:
+      summary: "id post"
+      description: "get the post"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  id : 
+                    type: string
+                  creator_id : 
+                    type: string
+                  token :  
+                    type : string
+                required:
+                  - id
+                  - creator_id
+                  - token
+      responses:
+        '200':
+          description: "get the post"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id : 
+                    type : string
+                  title : 
+                    type: string
+                  description :
+                    type:  string
+                  creator_id : 
+                    type: string
+                  created_at : 
+                    type : string
+                  update_st : 
+                    type : string
+                  is_private : 
+                    type : bool
+                  tags : 
+                    type: string 
+                  token :  
+                    type : string
+        '400':
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /get_all:
+    post:
+      summary: "all posts"
+      description: "get all posts"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  creator_id : 
+                    type: string
+                  token :  
+                    type : string
+                required:
+                  - creator_id
+                  - token
+      responses:
+        '200':
+          description: "get the post"
+          content:
+            application/json:
+              schema:
+                type : object
+                properties : 
+                  shema :
+                    type: object
+                    properties:
+                      id : 
+                        type : string
+                      title : 
+                        type: string
+                      description :
+                        type:  string
+                      creator_id : 
+                        type: string
+                      created_at : 
+                        type : string
+                      update_st : 
+                        type : string
+                      is_private : 
+                        type : bool
+                      tags : 
+                        type: string 
+                      token :  
+                        type : string
+        '400':
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  
 
 
 
