@@ -293,16 +293,18 @@ def get_all():
         return r.content, r.status_code
 
     try:
-        response = stub.ListPosts(post_service_pb2.Empty())
+        response = stub.ListPosts(post_service_pb2.PostPagin(pages = d['pages'], n_page = d['n_page']))
 
-        ans_list = []
+        ans_list = {}
+        k = 0
 
         for r in response.posts:
             ans = {"id" : r.id, "title" : r.title, "description" : r.description, 
                 "creator_id" : r.creator_id, "created_at" : r.created_at, "updated_at" : r.updated_at, 
                 "is_private" : r.is_private, "tags" : list(r.tags)}
 
-            ans_list.append(ans)
+            ans_list[k] = ans
+            k += 1
 
         return jsonify(ans_list), 200
 

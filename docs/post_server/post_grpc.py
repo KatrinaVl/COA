@@ -95,6 +95,10 @@ class PostServiceImpl(post_service_pb2_grpc.PostServiceServicer):
     def ListPosts(self, request, context):
         db = SessionLocal()
         posts = list_posts(db)
+
+        s = (request.pages * (request.n_page - 1))
+        e = min(((request.pages * request.n_page)), len(posts))
+
         db.close()
         return post_service_pb2.PostList(posts=[
             post_service_pb2.Post(
@@ -103,5 +107,5 @@ class PostServiceImpl(post_service_pb2_grpc.PostServiceServicer):
                 description=p.description,
                 updated_at=p.updated_at.isoformat(),
                 tags=p.tags
-            ) for p in posts
+            ) for p in posts[s:e]
         ])

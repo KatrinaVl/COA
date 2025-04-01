@@ -220,7 +220,7 @@ class Tests:
             api_addr,
             '/create_post',
             data={
-                'title': "do you like hse?",
+                'title': "do you like sport?",
                 'description': "lalalala",
                 'creator_id' : str(r_v),
                 'is_private' : False,
@@ -237,7 +237,7 @@ class Tests:
             '/update_post',
             data={
                 'id' : data['id'],
-                'title': "do you like hse?",
+                'title': "do you like sport?",
                 'description': "lalalala",
                 'creator_id' : str(r_v),
                 'is_private' : False,
@@ -248,7 +248,7 @@ class Tests:
 
         data = json.loads(r.content)
 
-        assert data['title'] == "do you like hse?"
+        assert data['title'] == "do you like sport?"
         assert data['description'] == "lalalala"
         assert data['creator_id'] == str(r_v)
         assert data['is_private'] == False
@@ -263,7 +263,7 @@ class Tests:
             api_addr,
             '/create_post',
             data={
-                'title': "do you like hse?",
+                'title': "do you like me?",
                 'description': "lalalala",
                 'creator_id' : str(r_v),
                 'is_private' : False,
@@ -280,7 +280,7 @@ class Tests:
             '/update_post',
             data={
                 'id' : "efgne",
-                'title': "do you like hse?",
+                'title': "do you like me?",
                 'description': "lalalala",
                 'creator_id' : str(r_v),
                 'is_private' : False,
@@ -297,7 +297,7 @@ class Tests:
             api_addr,
             '/create_post',
             data={
-                'title': "do you like hse?",
+                'title': "do you like coffe?",
                 'description': "lalalala",
                 'creator_id' : str(r_v),
                 'is_private' : False,
@@ -327,7 +327,7 @@ class Tests:
             api_addr,
             '/create_post',
             data={
-                'title': "do you like hse?",
+                'title': "do you like metro?",
                 'description': "lalalala",
                 'creator_id' : str(r_v),
                 'is_private' : False,
@@ -351,7 +351,7 @@ class Tests:
 
         data = json.loads(r.content)
 
-        assert data['title'] == "do you like hse?"
+        assert data['title'] == "do you like metro?"
         assert data['description'] == "lalalala"
         assert data['creator_id'] == str(r_v)
         assert data['is_private'] == False
@@ -365,7 +365,7 @@ class Tests:
             api_addr,
             '/create_post',
             data={
-                'title': "do you like hse?",
+                'title': "do you like summer?",
                 'description': "lalalala",
                 'creator_id' : str(r_v),
                 'is_private' : False,
@@ -396,7 +396,7 @@ class Tests:
             api_addr,
             '/create_post',
             data={
-                'title': "do you like hse?",
+                'title': "do you like cars?",
                 'description': "lalalala",
                 'creator_id' : str(r_v),
                 'is_private' : False,
@@ -412,8 +412,50 @@ class Tests:
             api_addr,
             '/get_all',
             data={
-                'id' : data['id'], 
-                "token" : t,
-                'creator_id' : str(r_v)})
+                'pages' : 3, 
+                "n_page" : 1,
+                'creator_id' : str(r_v),
+                'token' : t,})
+
+        data = json.loads(r.content)
 
         assert r.status_code == 200
+
+        assert len(data) == 3
+
+
+    @staticmethod
+    def test_get_list_end(api_addr, user):
+        ((username, password, mail, r_v, t), _) = user
+        r_create = make_requests(
+            'POST',
+            api_addr,
+            '/create_post',
+            data={
+                'title': "do you like flowers?",
+                'description': "lalalala",
+                'creator_id' : str(r_v),
+                'is_private' : False,
+                'tags' : "", 
+                'token' : t,})
+
+        assert r_create.status_code == 201
+
+        r = make_requests(
+            'GET',
+            api_addr,
+            '/get_all',
+            data={
+                'pages' : 3, 
+                "n_page" : 3,
+                'creator_id' : str(r_v),
+                'token' : t,})
+
+        data = json.loads(r.content)
+
+        LOGGER.info(f'>>> {len(data)}')
+
+        assert r.status_code == 200
+
+        assert len(data) <= 3
+
