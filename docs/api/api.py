@@ -311,5 +311,102 @@ def get_all():
     except Exception as e:
         return jsonify({"message" : f'{str(e)}'}), 400
 
+
+
+###### метод просмотра поста
+
+@app.route("/view_post", methods=['GET'])
+def view_post():
+    d = request.get_json(force=True)
+
+    try:
+
+        response = stub.ViewPost(post_service_pb2.ViewRequest(
+            id=d['id'],
+            user_id=d['user_id']
+        ))
+
+        ans = {"id" : response.id, "title" : response.title, "description" : response.description, 
+                "creator_id" : response.creator_id, "created_at" : response.created_at, "updated_at" : response.updated_at, 
+                "is_private" : response.is_private, "tags" : list(response.tags)}
+
+        return jsonify(ans), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+
+###### метод лайка поста
+
+@app.route("/like_post", methods=['GET'])
+def like_post():
+    d = request.get_json(force=True)
+
+    try:
+        response = stub.LikePost(post_service_pb2.PostRequest(
+            id=d['id'],
+        ))
+
+
+        if response.success :
+            return "OK", 200
+        else :
+            return "Wrong information", 400
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+
+
+###### метод комментария к посту
+
+@app.route("/comment_post", methods=['GET'])
+def comment_post():
+    d = request.get_json(force=True)
+
+    try:
+        response = stub.CommentPost(post_service_pb2.CommentRequest(
+            id=d['id'],
+            text=d['text'],
+        ))
+
+
+        ans = {"id" : response.id, "text" : response.text}
+
+        return jsonify(ans), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+
+
+####### метод получения вех коментариев
+
+@app.route("/get_comments_post", methods=['GET'])
+def get_comments_post():
+    d = request.get_json(force=True)
+
+    try:
+        GetComments(GetCommentsRequest)
+        response = stub.GetComments(post_service_pb2.GetCommentsRequest(
+            id=d['id'],
+            page = d['page'],
+            per_page = d['per_page'],
+        ))
+
+        ans_list = {}
+        k = 0
+
+        for r in response.comments:
+            ans = {"id" : r.id, "text" : r.text}
+
+            ans_list[k] = ans
+            k += 1
+
+        return jsonify(ans_list), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port='8090')

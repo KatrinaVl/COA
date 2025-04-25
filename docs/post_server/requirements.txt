@@ -16,3 +16,8 @@ Werkzeug==2.2.2
 SQLAlchemy
 pytest==7.4.0
 pytest-cov==4.1.0
+
+uvicorn
+kafka-python
+pydantic
+confluent_kafka
