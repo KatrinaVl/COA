@@ -1,0 +1,48 @@
+@startuml
+package "Post Service" <<Rectangle>> {
+    
+
+class Posts {
+    id :: SIZE_T
+    ..
+    id_user :: SIZE_T
+    ..
+    date :: STRING
+    ..
+    content :: STRING
+}
+
+note bottom of Posts
+Вся информация о посте: 
+акивность на нем, 
+комментарии, дата 
+и контент поста
+end note
+
+class Comments {
+    id :: SIZE_T
+    ..
+    id_user :: SIZE_T
+    ..
+    date ::STRING
+    ..
+    text_comment :: STRING
+    ..
+    parent_id :: SIZE_T
+}
+
+note bottom of Comments
+Комментарии оставленные
+пользователем вместе с
+датой и ссылкой на 
+ответный комментарий
+если это необходимо
+end note
+
+}
+
+
+
+
+
+@enduml

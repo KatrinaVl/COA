@@ -1,52 +1,73 @@
 @startuml
+package "User Service" <<Rectangle>> {
+    
+
 class Users {
-    id_user
+    id :: SIZE_T
     ..
-    name
+    id_user :: SIZE_T
     ..
-    surname 
+    name :: STRING
     ..
-    birthday
+    surname :: STRING
     ..
-    role 
+    phone :: STRING
+    ..
+    birthday :: STRING
+    ..
+    role :: STRING
+    ..
+    mail :: STRING
+    ..
+    status :: STRING
+    ..
+    token :: STRING
+    ..
+    updated_at :: DATE
 }
+
+note bottom of Users
+Главная информация 
+о пользователе, 
+его имя, фамилия, 
+роль и день рождения
+end note
 
 
 class Register {
-    email
+    id :: SIZE_T
     ..
-    password
+    login ::STRING
     ..
-    sha_key (private)
+    password :: STRING
     ..
-    sha-key (public)
+    mail :: STRING
     ..
-    id_user
+    created_at :: DATA
 }
 
-class Activity {
-    id_user
-    ..
-    id_stat 
-    ..
-    id_post_stat
-    ..
-    list_friends
-    ..
-    status
-}
+note bottom of Register
+Информация, необходимая
+для регистрации
+end note
+
 
 class ListFrineds {
-    id
+    id :: SIZE_T
     ..
-    id_user
+    id_user :: SIZE_T
+    ..
+    frined :: SIZE_T
+    ..
+    name :: STRING
+    ..
+    surname :: STRING
 }
 
-Register::id_user --> Users
+note bottom of ListFrineds
+Список друзей
+end note
 
-Users --> Activity
-Users::id_user --> Activity::id_user  #line.dotted;
-
-Activity::list_friends --> ListFrineds
+}
 
 @enduml

@@ -1,0 +1,628 @@
+openapi: 3.1.0
+info:
+  title: "Social Network API"
+  description: “Service for social network, which contact with user”
+  version: "1.0.0"
+  contact:
+    name: Екатерина Владимирова
+    email: eevladimirova@edu.hse.ru
+
+paths:
+  /register:
+    post:
+      summary: "register"
+      description: "registration a new user"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  login: 
+                    type: string
+                  password: 
+                    type: string
+                  mail:
+                    type: string
+                required:
+                  - login
+                  - password
+                  - mail
+      responses:
+        '201':
+          description: "POST create user and return answer"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id: 
+                    type: string
+                  message: 
+                    type: string
+                required:
+                  - user_id
+        '400':
+          description: "Bad request: check login or mail"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  /login:
+    post:
+      summary: "login"
+      description: "login user"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  login: 
+                    type: string
+                  password: 
+                    type: string
+                required:
+                  - login
+                  - password
+      responses:
+        '201':
+          description: "Authorisation is successful and return token"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: 
+                    type: string
+                  message: 
+                    type: string
+                required:
+                  - token
+
+        '401':
+          description: "Unauthorized: check password or register"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+        '404':
+          description: "Not found information about user"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /update:
+    put:
+      summary: "update"
+      description: "update information about user"
+      requestBody:
+        content:
+          application/json:
+            params:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    type: string
+            data:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  surname:
+                    type: string
+                  phone:
+                    type: string
+                  birthday:
+                    type: string
+                  role:
+                    type: string
+                  mail:
+                    type: string
+                  status:
+                    type: string
+                  token:
+                    type: string
+                  updated_at:
+                    type: datatime
+            coockies:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+            requared:
+              - id
+              - token
+      responses:
+        '200':
+          description: "Update is successful"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        
+        '404':
+          description: "Not found information about user"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        
+        '403':
+          description: "Forbidden: user do not have access"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        
+        '400':
+          description: "Bad request: impossible change login or password"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /get_info:
+    /get:
+      summary: "get_info"
+      description: "get information about user"
+      requestBody:
+        content:
+          application/json:
+            params:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    type: string
+            coockies:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+            requared:
+              - id
+              - token
+      responses:
+        '200':
+          description: "get data is successful"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    schema:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        surname:
+                          type: string
+                        phone:
+                          type: string
+                        birthday:
+                          type: string
+                        role:
+                          type: string
+                        mail:
+                          type: string
+                        status:
+                          type: string
+                        token:
+                          type: string
+                        updated_at:
+                          type: datatime
+        
+        '404':
+          description: "Not found information about user"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        
+        '403':
+          description: "Forbidden: user do not have access"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  
+  /add_friend:
+    put:
+      summary: "add_friend"
+      description: "add friend user"
+      requestBody:
+        content:
+          application/json:
+            params:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    type: string
+                  id_friend: 
+                    type: string
+            data: 
+              schema:
+                type: object
+                properties:
+                  name: 
+                    type: string
+                  surname: 
+                    type: string
+            coockies:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+            requared:
+              - id
+              - id_friend
+              - token
+              - name
+              - surname
+      responses:
+        '200':
+          description: "adding friend is successful"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        
+        '404':
+          description: "Not found information about user or friend user"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        
+        '403':
+          description: "Forbidden: user do not have access"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        
+        '400':
+          description: "Bad request: friend has already added"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+  /create_post:
+    post:
+      summary: "information for post"
+      description: "create a new post"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  title : 
+                    type: string
+                  description :
+                    type:  string
+                  creator_id : 
+                    type: string
+                  is_private : 
+                    type : bool
+                  tags : 
+                    type: string 
+                  token :  
+                    type : string
+                required:
+                  - title
+                  - description
+                  - creator_id
+                  - token
+      responses:
+        '201':
+          description: "Creating is successful and return the post"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id : 
+                    type : string
+                  title : 
+                    type: string
+                  description :
+                    type:  string
+                  creator_id : 
+                    type: string
+                  created_at : 
+                    type : string
+                  update_st : 
+                    type : string
+                  is_private : 
+                    type : bool
+                  tags : 
+                    type: string 
+                  token :  
+                    type : string
+        '400':
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /update_post:
+    post:
+      summary: "information for post"
+      description: "update the post"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  title : 
+                    type: string
+                  description :
+                    type:  string
+                  creator_id : 
+                    type: string
+                  is_private : 
+                    type : bool
+                  tags : 
+                    type: string 
+                  token :  
+                    type : string
+                required:
+                  - title
+                  - description
+                  - creator_id
+                  - token
+      responses:
+        '200':
+          description: "Creating is successful and return the post"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id : 
+                    type : string
+                  title : 
+                    type: string
+                  description :
+                    type:  string
+                  creator_id : 
+                    type: string
+                  created_at : 
+                    type : string
+                  update_st : 
+                    type : string
+                  is_private : 
+                    type : bool
+                  tags : 
+                    type: string 
+                  token :  
+                    type : string
+        '400':
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /delete_post:
+    post:
+      summary: "id post"
+      description: "delete the post"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  id : 
+                    type: string
+                  creator_id : 
+                    type: string
+                  token :  
+                    type : string
+                required:
+                  - id
+                  - creator_id
+                  - token
+      responses:
+        '200':
+          description: "Delete is successful"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+        '400':
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /get_post:
+    post:
+      summary: "id post"
+      description: "get the post"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  id : 
+                    type: string
+                  creator_id : 
+                    type: string
+                  token :  
+                    type : string
+                required:
+                  - id
+                  - creator_id
+                  - token
+      responses:
+        '200':
+          description: "get the post"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id : 
+                    type : string
+                  title : 
+                    type: string
+                  description :
+                    type:  string
+                  creator_id : 
+                    type: string
+                  created_at : 
+                    type : string
+                  update_st : 
+                    type : string
+                  is_private : 
+                    type : bool
+                  tags : 
+                    type: string 
+                  token :  
+                    type : string
+        '400':
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  /get_all:
+    post:
+      summary: "all posts"
+      description: "get all posts"
+      requestBody:
+        content:
+          application/json:
+            data:
+              schema:
+                type: object
+                properties:
+                  creator_id : 
+                    type: string
+                  token :  
+                    type : string
+                required:
+                  - creator_id
+                  - token
+      responses:
+        '200':
+          description: "get the post"
+          content:
+            application/json:
+              schema:
+                type : object
+                properties : 
+                  shema :
+                    type: object
+                    properties:
+                      id : 
+                        type : string
+                      title : 
+                        type: string
+                      description :
+                        type:  string
+                      creator_id : 
+                        type: string
+                      created_at : 
+                        type : string
+                      update_st : 
+                        type : string
+                      is_private : 
+                        type : bool
+                      tags : 
+                        type: string 
+                      token :  
+                        type : string
+        '400':
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+
+  
+
+
+
+
