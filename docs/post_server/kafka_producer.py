@@ -49,7 +49,7 @@ class KafkaProducer:
     def send_comment_created_event(self, comment_data: Dict[str, Any]):
         """Send event when a book is created."""
         self.send_event(
-            topic=self.POST_COMMENTED_TOPI,
+            topic=self.POST_COMMENTED_TOPIC,
             data={
                 "event_type": "post_commented",
                 "timestamp": datetime.now(),

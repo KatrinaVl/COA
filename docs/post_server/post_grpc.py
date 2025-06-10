@@ -10,7 +10,6 @@ from google.protobuf import empty_pb2
 import grpc
 
 from pydantic import BaseModel
-# from kafka import KafkaProducer
 import json
 import os
 
@@ -150,6 +149,14 @@ class PostServiceImpl(post_service_pb2_grpc.PostServiceServicer):
 
         db = SessionLocal()
 
+        post = db.query(Post).filter(Post.id == request.post_id).first()
+        if not post:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Post not found")
+
+        like_check = db.query(Like).filter(Like.user_id == request.user_id and Like.post_id == request.post_id).first()
+        if like_check:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Like already exist")
+
         like = Like(
             id=like_id,
             user_id=request.user_id,
@@ -157,13 +164,13 @@ class PostServiceImpl(post_service_pb2_grpc.PostServiceServicer):
             created_at=now,
         )
 
-        self.kafka_producer.send_post_licked_event(request.id, request.user_id)
+        self.kafka_producer.send_post_liked_event(request.post_id, request.user_id)
 
         db.add(like)
         db.commit()
         db.refresh(like)
 
-        r_like = post_service_pb2.LikeResponce(
+        r_like = post_service_pb2.LikeResponse(
             success = True,
         )
 
@@ -171,13 +178,15 @@ class PostServiceImpl(post_service_pb2_grpc.PostServiceServicer):
 
         return r_like
 
-        #добавить кафку
-
     def CommentPost(self, request, context): 
         comm_id = str(uuid.uuid4())
         now = datetime.utcnow()
 
         db = SessionLocal()
+
+        post_check = db.query(Post).filter(Post.id == request.post_id).first()
+        if not post_check:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Post not found")
 
         post = Comment(
             id=comm_id,
@@ -192,37 +201,35 @@ class PostServiceImpl(post_service_pb2_grpc.PostServiceServicer):
         db.commit()
         db.refresh(post)
 
-        self.kafka_producer.send_post_commented_event(request.id, request.user_id, request.parent_id)
+        self.kafka_producer.send_comment_created_event({"id":comm_id, "user_id":request.user_id, "post_id":request.post_id, 
+                                                        "parent_id":request.parent_id, "text":request.text, "created_at" : now})
 
-        r_post = post_service_pb2.Post(
-            id=post.id,
-            title=post.title,
-            description=post.description,
-            creator_id=post.creator_id,
-            created_at=post.created_at.isoformat(),
-            updated_at=post.updated_at.isoformat(),
-            is_private=post.is_private,
-            tags=post.tags.split(',') if post.tags else []
+        r_post = post_service_pb2.Comment(
+            id=comm_id,
+            text=request.text,
+            parent_id=request.parent_id,
         )
 
         db.close()
 
         return r_post
 
-        #добавить кафку
-
 
     def GetComments(self, request, context):
         db = SessionLocal()
-        comments = list_comments(db)
+        post = db.query(Post).filter(Post.id == request.id).first()
+        if not post:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Post not found")
+        comments = db.query(Comment).filter(Comment.post_id == request.id).all()
 
-        s = (request.per_page * (request.n_page - 1))
-        e = min(((request.per_page * request.n_page)), len(posts))
+        s = (request.per_page * (request.page - 1))
+        e = min(((request.per_page * request.page)), len(comments))
 
         db.close()
         return post_service_pb2.GetCommentsResponse(comments=[
             post_service_pb2.Comment(
                 id=p.id,
                 text=p.text,
-            ) for p in posts[s:e]
+                parent_id=p.parent_id
+            ) for p in comments[s:e]
         ])

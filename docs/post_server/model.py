@@ -32,7 +32,7 @@ class Comment(Base):
     id = Column(String, primary_key=True)
     user_id = Column(String, nullable=False)
     post_id = Column(String, nullable=False)
-    parent_id = Column(String, nullable=False)
+    parent_id = Column(String, nullable=True)
     text = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
     
