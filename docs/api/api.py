@@ -24,6 +24,11 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 import grpc
 from proto import post_service_pb2
 from proto import post_service_pb2_grpc
+from proto import analitic_service_pb2
+from proto import analitic_service_pb2_grpc
+
+from google.protobuf.timestamp_pb2 import Timestamp
+from datetime import datetime, date
 
 
 app = Flask(__name__)
@@ -32,6 +37,9 @@ LOGGER = logging.getLogger(__name__)
 
 channel = grpc.insecure_channel("post_server:50051")
 stub = post_service_pb2_grpc.PostServiceStub(channel)
+
+channel_an = grpc.insecure_channel("analitic_server:50052")
+stub_an = analitic_service_pb2_grpc.AnaliticServiceStub(channel_an)
 
 def make_requests(method, addr, handle, params=None, data=None, cookies=None, headers=None):
     if data is not None:
@@ -338,20 +346,21 @@ def view_post():
 
 ###### метод лайка поста
 
-@app.route("/like_post", methods=['GET'])
+@app.route("/like_post", methods=['POST'])
 def like_post():
     d = request.get_json(force=True)
 
     try:
-        response = stub.LikePost(post_service_pb2.PostRequest(
-            id=d['id'],
+        response = stub.LikePost(post_service_pb2.LikeRequest(
+            post_id=d['post_id'],
+            user_id=d['user_id']
         ))
 
 
         if response.success :
-            return "OK", 200
+            return jsonify({"message" : f"OK"}), 200
         else :
-            return "Wrong information", 400
+            return jsonify({"message" : f"Wrong information"}), 400
 
     except Exception as e:
         return jsonify({"message" : f'{str(e)}'}), 400
@@ -360,15 +369,25 @@ def like_post():
 
 ###### метод комментария к посту
 
-@app.route("/comment_post", methods=['GET'])
+@app.route("/comment_post", methods=['POST'])
 def comment_post():
     d = request.get_json(force=True)
 
     try:
-        response = stub.CommentPost(post_service_pb2.CommentRequest(
-            id=d['id'],
-            text=d['text'],
-        ))
+        if "parent_id" in d:
+            response = stub.CommentPost(post_service_pb2.CommentRequest(
+                text=d['text'],
+                post_id=d['post_id'],
+                user_id=d['user_id'],
+                parent_id=d['parent_id']
+            ))
+        else:
+            response = stub.CommentPost(post_service_pb2.CommentRequest(
+                text=d['text'],
+                post_id=d['post_id'],
+                user_id=d['user_id']
+            ))
+
 
 
         ans = {"id" : response.id, "text" : response.text}
@@ -387,7 +406,6 @@ def get_comments_post():
     d = request.get_json(force=True)
 
     try:
-        GetComments(GetCommentsRequest)
         response = stub.GetComments(post_service_pb2.GetCommentsRequest(
             id=d['id'],
             page = d['page'],
@@ -398,12 +416,215 @@ def get_comments_post():
         k = 0
 
         for r in response.comments:
-            ans = {"id" : r.id, "text" : r.text}
+            if r.parent_id:
+                ans = {"id" : r.id, "text" : r.text, "parent_id" : r.parent_id}
+            else:
+                ans = {"id" : r.id, "text" : r.text}
 
             ans_list[k] = ans
             k += 1
 
         return jsonify(ans_list), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+
+@app.route("/get_number_likes", methods=['GET'])
+def get_number_likes():
+    d = request.get_json(force=True)
+
+    try:
+        post_id = d.get('post_id')
+        if not post_id:
+            return jsonify({"message": "Missing 'post_id' in request"}), 400
+
+        response = stub_an.GetNumberLikes(analitic_service_pb2.NumberRequest(id=post_id))
+        return jsonify({
+                "likes": response.num
+            }), 200
+
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+
+@app.route("/get_number_see", methods=['GET'])
+def get_number_see():
+    d = request.get_json(force=True)
+
+    try:
+        post_id = d.get('post_id')
+        if not post_id:
+            return jsonify({"message": "Missing 'post_id' in request"}), 400
+
+        
+        response = stub_an.GetNumberSee(analitic_service_pb2.NumberRequest(id=post_id))
+        return jsonify({
+                "see": response.num
+            }), 200
+
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+
+@app.route("/get_number_comments", methods=['GET'])
+def get_number_comments():
+    d = request.get_json(force=True)
+
+    try:
+        post_id = d.get('post_id')
+        if not post_id:
+            return jsonify({"message": "Missing 'post_id' in request"}), 400
+
+    
+        response = stub_an.GetNumberComments(analitic_service_pb2.NumberRequest(id=post_id))
+        return jsonify({
+                "comments": response.num
+            }), 200
+
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+
+@app.route("/get_dynamic_likes", methods=['GET'])
+def get_dynamic_likes():
+    d = request.get_json(force=True)
+
+    try:
+        post_id = d.get('post_id')
+        if not post_id:
+            return jsonify({"message": "Missing 'post_id' in request"}), 400
+
+        ans_list = []
+        
+        response = stub_an.GetLikes(analitic_service_pb2.NumberRequest(id=post_id))
+
+        for r in response.days:
+            date_str = r.date.ToDatetime().strftime('%Y-%m-%d')
+            
+            ans = {"date" : date_str, "num" : r.num}
+
+            ans_list.append(ans)
+        
+        
+        return jsonify({
+                "dynamic": ans_list
+            }), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+
+@app.route("/get_dynamic_see", methods=['GET'])
+def get_dynamic_see():
+    d = request.get_json(force=True)
+
+    try:
+        post_id = d.get('post_id')
+        if not post_id:
+            return jsonify({"message": "Missing 'post_id' in request"}), 400
+
+        ans_list = []
+        
+        response = stub_an.GetSee(analitic_service_pb2.NumberRequest(id=post_id))
+
+        for r in response.days:
+            date_str = r.date.ToDatetime().strftime('%Y-%m-%d')
+            
+            ans = {"date" : date_str, "num" : r.num}
+
+            ans_list.append(ans)
+        
+        
+        return jsonify({
+                "dynamic": ans_list
+            }), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+
+@app.route("/get_dynamic_comments", methods=['GET'])
+def get_dynamic_comments():
+    d = request.get_json(force=True)
+
+    try:
+        post_id = d.get('post_id')
+        if not post_id:
+            return jsonify({"message": "Missing 'post_id' in request"}), 400
+
+        ans_list = []
+        
+        response = stub_an.GetComments(analitic_service_pb2.NumberRequest(id=post_id))
+
+        for r in response.days:
+            date_str = r.date.ToDatetime().strftime('%Y-%m-%d')
+            
+            ans = {"date" : date_str, "num" : r.num}
+
+            ans_list.append(ans)
+        
+        
+        return jsonify({
+                "dynamic": ans_list
+            }), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+
+@app.route("/get_top_posts", methods=['GET'])
+def get_top_posts():
+    d = request.get_json(force=True)
+
+    try:
+        type_ = d.get('type')
+        
+
+        ans_list = []
+        
+        response = stub_an.GetTopPosts(analitic_service_pb2.TopRequest(type=type_))
+
+        for r in response.ids:
+            
+            ans = {"date" : r.id, "num" : r.count}
+
+            ans_list.append(ans)
+        
+        
+        return jsonify({
+                "top_posts": ans_list
+            }), 200
+
+    except Exception as e:
+        return jsonify({"message" : f'{str(e)}'}), 400
+
+
+@app.route("/get_top_users", methods=['GET'])
+def get_top_users():
+    d = request.get_json(force=True)
+
+    try:
+        type_ = d.get('type')
+        
+
+        ans_list = []
+        
+        response = stub_an.GetTopUsers(analitic_service_pb2.TopRequest(type=type_))
+
+        for r in response.ids:
+            
+            ans = {"date" : r.id, "num" : r.count}
+
+            ans_list.append(ans)
+        
+        
+        return jsonify({
+                "top_users": ans_list
+            }), 200
 
     except Exception as e:
         return jsonify({"message" : f'{str(e)}'}), 400

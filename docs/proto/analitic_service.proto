@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package post;
+
+import "google/protobuf/timestamp.proto";
+
+message NumberRequest {
+    string id = 1;
+}
+
+message Day {
+  int64 num = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message InfoDays { 
+  repeated Day days = 1; 
+}
+
+message Number {
+  int64 num = 1;
+}
+
+message TopRequest {
+  string type = 1;
+}
+
+message Id {
+  string id = 1;
+  int64 count = 2;
+}
+
+message IDs{
+  repeated Id ids = 1;
+}
+
+
+
+service AnaliticService {
+  rpc GetNumberLikes(NumberRequest) returns (Number);
+  rpc GetNumberSee(NumberRequest) returns (Number);
+  rpc GetNumberComments(NumberRequest) returns (Number);
+  rpc GetLikes(NumberRequest) returns (InfoDays);
+  rpc GetSee(NumberRequest) returns (InfoDays);
+  rpc GetComments(NumberRequest) returns (InfoDays);
+  rpc GetTopPosts(TopRequest) returns (IDs);
+  rpc GetTopUsers(TopRequest) returns (IDs);
+}
